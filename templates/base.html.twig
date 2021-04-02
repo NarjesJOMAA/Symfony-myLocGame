@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}MyLoc Game{% endblock %}</title>
+
+        {% block stylesheets %}
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+        <!-- Google Fonts -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+        <!-- Bootstrap core CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Material Design Bootstrap -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
+ 	      <!-- CSS only -->
+        <link rel="stylesheet" href="/assets/css/style.css">
+        <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+        <!-- bootstrap-datepicker css -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.css" rel="stylesheet"/>
+        {% endblock %}
+        
+    </head>
+      <body>
+
+        <!-- pour les utilisateurs du site web -->
+        {% if app.user %}
+        <header>
+          <!-- Navbar -->
+          <nav class="navbar navbar-expand-lg navbar-dark fixed-top scrolling-navbar">
+            <div class="container">
+              <a class="navbar-brand" href="/">
+                <strong>MyLoc Game</strong>
+              </a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-7" aria-controls="navbarSupportedContent-7" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent-7">
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="/">Accueil
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/session">Compte ({{app.user}})</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/logout">Déconnexion</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+          <div class="view" id="headimg">
+            <div class="mask rgba-gradient align-items-center">
+              <!-- Session -->
+              {% if session is defined %}
+              <div class="container">
+                <div class="row mt-3">
+                  <div class="col-12 dark-text mb-4 text-right">
+                    <span class="font-weight-bold h4">Bonjour {{app.user}} !</span>
+                    <span class="white-text font-weight-bold h6">Solde des points : {{ points }}</span>
+                  </div>
+                  <div class="col-md-4 white-text mb-3">
+                    <div class="card">
+                      <div class="card-body">
+                        <h5 class="card-title">Annonces</h5>
+                        <hr class="hr-light">
+                        <ol>
+                        {% for bien in biens %}
+                          <li>{{bien.nom}}
+                              {% for loc in bien.prets %}
+                                <p>- {{loc.emprunteur}} a emprunté cet objet du {{loc.DateDebut|date('d/m/y')}} au {{loc.DateFin|date('d/m/y')}}</p>
+                              {% endfor %}
+                          </li>
+                        {% endfor %}
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 white-text">
+                    <div class="card">
+                      <div class="card-body">
+                        <h5 class="card-title">Objets empruntés</h5>
+                        <hr class="hr-light">
+                          <ol>
+                          {% for pret in prets %}
+                            <li> 
+                              {% set loc=pret.bien %}
+                              {{loc.nom}}(Du {{pret.DateDebut|date('d/m/y')}} au {{pret.DateFin|date('d/m/y')}})
+                            </li>
+                          {% endfor %}
+                          </ol>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 white-text text-center">
+                        <div class="card">
+                            <div class="card-body">
+                              <h5 class="white-text"> Déposez une annonce</h5>
+                              <hr class="hr-light">
+                                {{form_start(form)}}
+                                <div class="md-form">
+                                  {{ form_label(form.nom, 'Nom', { 'label_attr': {'class': 'white-text'} }) }}
+                                  {{form_widget(form.nom, {'attr': {'class': 'white-text mt-3'}}) }}
+                                </div>
+                                <div class="md-form">
+                                  {{ form_label(form.description, 'Description', { 'label_attr': {'class': 'white-text'} }) }}
+                                  {{form_widget(form.description, {'attr': {'class': 'white-text mt-3 md-textarea'}}) }}
+                                </div>
+                                <div>
+                                  {{ form_label(form.imageFile, 'Image', { 'label_attr': {'class': 'white-text'} }) }}
+                                  {{form_widget(form.imageFile, {'attr': {'class': 'white-text'}}) }}
+                                </div>
+                                <div class="mt-3">
+                                  {{ form_label(form.categories, 'Catégorie', { 'label_attr': {'class': 'white-text'} }) }}
+                                  {{form_widget(form.categories, {'attr': {'class': 'dark-text custom-select'}}) }}
+                                </div>
+
+                                <div class="text-center mt-3">
+                                  <input type="submit" value="Ajouter" class="btn btn-indigo" />
+                                </div>
+                                {{form_end(form)}}
+                            </div>
+                        </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Single page -->
+              {% elseif single is defined %}
+                <div class="card mb-3 marg ml-auto mr-auto" style="max-width: 1000px">
+                  <div class="row g-0">
+                    <div class="col-md-4">
+                      <img
+                        src="{{ asset('assets/img/' ~ bien.imageName) }}"
+                        class="img-fluid mt-2 mb-2 ml-2"
+                      />
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body white-text">
+                        <h5 class="card-title"> {{bien.nom}} </h5>
+                        <h6 class="card-subtitle"> {{bien.proprietaire}} </h6>
+                        <p class="card-text mt-3 white-text">
+                          {{bien.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+          {{form_start(form)}}
+            <div class="text-center white-text mt-3">
+              {{ form_label(form.date_debut, 'Date de début :', { 'label_attr': {'class': 'white-text'}})}}
+              {{ form_widget(form.date_debut)}}
+              {{form_errors(form.date_debut)}}
+            </div>
+
+            <div class="text-center white-text mt-3">
+              {{ form_label(form.date_fin, 'Date de fin : ', { 'label_attr': {'class': 'white-text'}})}}
+              {{ form_widget(form.date_fin)}}
+              {{form_errors(form.date_fin)}}
+            </div>
+
+            {% if app.user== bien.proprietaire %}
+              <div class="text-center mt-2">
+                <input type="submit" value="Reserver" class="btn btn-indigo" disabled/>
+                <p class="text-danger">Vous ne pouvez pas emprunter votre objet.</p>
+              </div>
+            {% else %}
+              <div class="text-center mt-2">
+                <input type="submit" value="Reserver" class="btn btn-indigo" />
+              </div>
+            {% endif %}
+          {{form_end(form)}}
+              <!-- Page d'accueil -->
+              {% else %}
+              <div class="container">
+                <!--Grid row-->
+                <div class="row marg">
+                  <!--Grid column-->
+                    <div class="col-md-12 white-text mb-3 text-center mt-2">
+                        <h1>Le plaisir de partage</h1>
+                      <!-- Basic dropdown -->
+                    </div>
+                    <div class="col-md-12 white-text text-center mt-5">
+                        <div  class="dropdown">
+                          <button id="navbardrop" class="btn btn-indigo dropdown-toggle mr-0" type="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">Chercher par catégories
+                          </button>
+
+                          <div class="dropdown-menu text-center" aria-labelledby="navbardrop">
+                              <a class="dropdown-item" href="/">Tous</a>
+                            {% for categorie in categories %}
+                              <a class="dropdown-item" href="/category/{{categorie.nom}}">{{categorie.nom}}</a>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      <!-- Basic dropdown -->
+                    </div>
+                    <div class="col-md-12 mt-5 white-text text-center">
+                      <h4>Jeux gratuits sont disponibles à être prêtés</h4>
+                    </div>
+                  <!--Grid column-->
+                </div>
+                <!--Grid row-->
+              </div>
+              {% endif %}
+              <!-- Content -->
+            </div>
+            <!-- Mask & flexbox options-->
+          </div>
+          <!-- Full Page Intro -->
+        </header>
+          <!-- Main navigation -->
+
+        <!-- pour les visiteurs du site web -->
+
+        {% else %}
+        <header>
+          <!-- Navbar -->
+          <nav class="navbar navbar-expand-lg navbar-dark fixed-top scrolling-navbar">
+            <div class="container">
+              <a class="navbar-brand" href="#">
+                <strong>MyLoc Game</strong>
+              </a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-7" aria-controls="navbarSupportedContent-7" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent-7">
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item active">
+                    <a class="nav-link" href="/">Accueil
+                      <span class="sr-only">(current)</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/session">Compte</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+          <!-- Navbar -->
+          <!-- Full Page Intro -->
+          <div class="view" id="headimg">
+            <!-- Mask & flexbox options-->
+            <div class="mask rgba-gradient align-items-center">
+              <!-- Content -->
+              <div class="container">
+                <!--Grid row-->
+                <div class="row marg">
+                  <!--Grid column-->
+                  <div class="col-md-6 mb-5 mt-md-0 mt-5 white-text text-center text-md-left">
+                    <h1 class="h1-responsive font-weight-bold wow fadeInLeft" data-wow-delay="0.3s">Inscrivez-vous maintenant! </h1>
+                    <hr class="hr-light wow fadeInLeft" data-wow-delay="0.3s">
+                    <h6 class="mb-3 wow fadeInLeft" data-wow-delay="0.3s">
+                    MyLoc Game est une application web permettant de se prêter des jeux entre utilisateurs. Le principe 
+                    est qu' un utilisateur inscrit peut proposer des jeux au prêt à d'autres utilisateurs 
+                    et bien sûr il peut, à son tour, prêter d'autres jeux.
+                    </h6>
+                    <h5 class="mb-3 wow fadeInLeft" data-wow-delay="0.3s">Avez vous déjà créé un compte? Connectez vous, partagez et profitez!</h5>
+
+                    <a href="/login" class="btn btn-outline-white wow fadeInLeft" data-wow-delay="0.3s">Se connecter</a>
+                  </div>
+                  <!--Grid column-->
+                  <!--Grid column-->
+                  <div class="col-md-6 col-xl-5 mb-4">
+                    <!--Form-->
+                      <div class="card-body">
+                        <!--Header-->
+                        <div class="text-center">
+                          <h3 class="white-text">
+                            <i class="fas fa-user white-text"></i> Créez un compte:</h3>
+                          <hr class="hr-light">
+                        </div>
+                        <!--Body-->
+
+                      {{form_start(form)}}
+                        <div class="md-form">
+                          <i class="fas fa-user prefix white-text active"></i>
+                          {{ form_label(form.nom, 'Pseudo', { 'label_attr': {'class': 'white-text ml-5'} }) }}
+                          {{form_widget(form.nom, {'attr': {'class': 'white-text ml-5 mt-3'}}) }}
+                        </div>
+                        <div class="md-form">
+                          <i class="fas fa-envelope prefix white-text active"></i>
+                          {{ form_label(form.mail, 'Adresse mail', { 'label_attr': {'class': 'white-text ml-5'} }) }}
+                          {{form_widget(form.mail, {'attr': {'class': 'white-text ml-5 mt-3'}}) }}
+                        </div>
+                        <div class="md-form">
+                          <i class="fas fa-lock prefix white-text active"></i>
+                          {{ form_label(form.password, 'Mot de passe', { 'label_attr': {'class': 'white-text ml-5'} }) }}
+                          {{form_widget(form.password, {'attr': {'class': 'white-text ml-5 mt-3'}}) }}
+                        </div>
+                        <div class="text-center mt-5">
+                          <input type="submit" value="S'inscrire" class="btn btn-indigo" />
+                        </div>
+                      {{form_end(form)}}
+                        
+                      </div>
+                    <!--/.Form-->
+                  </div>
+                  <!--Grid column-->
+                </div>
+                <!--Grid row-->
+              </div>
+              <!-- Content -->
+            </div>
+            <!-- Mask & flexbox options-->
+          </div>
+          <!-- Full Page Intro -->
+        </header>
+        {% endif %}
+
+      <!-- Main navigation -->
+
+      {% block body %} {% endblock %}
+
+      <!-- Footer -->
+      <footer class="page-footer font-small indigo mt-1">
+
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3">© 2020 Copyright:
+          <span> MyLoc Game</span>
+        </div>
+        <!-- Copyright -->
+
+      </footer>
+      <!-- Footer -->
+
+      {% block javascripts %}
+        <script type="text/javascript" src="/assets/js/script.js"></script>
+        <!-- JQuery -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <!-- Bootstrap tooltips -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+        <!-- Bootstrap core JavaScript -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+        <!-- MDB core JavaScript -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
+        <!-- bootstrap-datepicker JavaScript -->
+        <script src="https://MomentJS.com/downloads/moment.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js"></script>
+        {% if single is defined %}
+          <script>
+            $(document).ready(function() {
+              var getDateArray = function(start, end) {
+                var arr = new Array();
+                var dt = new Date(start);
+                while (dt <= end) {
+                  arr.push(moment(dt).format('D-M-YYYY'));
+                  dt.setDate(dt.getDate() + 1);
+                }
+                return arr;
+              }
+              var disableSpecificDates = [];
+              {% for arrayDate in arrayDates%}
+                Array.prototype.push.apply(disableSpecificDates, getDateArray(new Date("{{arrayDate.startDate}}"), new Date("{{arrayDate.endDate}}")));
+              {% endfor %}
+
+              $('.js-datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                beforeShowDay: function(date){
+                  dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+                  if(disableSpecificDates.indexOf(dmy) != -1){
+                    return false;
+                  }
+                  else {
+                    return true;
+                  }
+                }
+              });
+            });
+          </script>
+        {% endif %}
+        {% endblock %}
+
+    </body>
+</html>

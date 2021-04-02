@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MyLoc Game{% endblock %}
+
+{% block body %}
+    <main class="container-fluid pt-2 pb-5">
+        <session class="row">
+            {% if biens is empty  %}
+                <div class="col-12 text-center text-danger">
+                    <h5> Désolé! pas d'annonces pour cette catégorie, pour le moment! </h5>
+                </div>
+            {% else %}
+                {% for bien in biens %}
+                <div class="col-3 box view overlay hm-indigo-light">
+                        <img
+                            src="{{ asset('assets/img/' ~ bien.imageName) }}"
+                            class="img-fluid"
+                        />
+                    <span class="nom">{{bien.nom}}</span>
+                    <p class="category">{{bien.categories}}</p>
+                    <div class="mask flex-center">
+                        <a href="/single/{{bien.nom}}/{{bien.id}}" class="btn btn-indigo">Voir plus</a>
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% endif %}
+
+        </session>
+    </main>
+{% endblock %}
